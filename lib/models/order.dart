@@ -4,6 +4,7 @@
 
 import 'dart:convert';
 
+import 'package:flutter_paymob/utils/json_utils.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'order.g.dart';
@@ -45,15 +46,13 @@ class Item {
   });
 
   String? name;
-  @JsonKey(toJson: _intToString)
+  @JsonKey(toJson: intToNullableString)
   int? amountCents;
   String? description;
   String? quantity;
 
   Map<String, dynamic> toJson() => _$ItemToJson(this);
 }
-
-String? _intToString(int? value) => value.toString();
 
 @JsonSerializable(createFactory: false)
 class ShippingData {

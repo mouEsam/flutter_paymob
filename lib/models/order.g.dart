@@ -19,7 +19,7 @@ Map<String, dynamic> _$OrderToJson(Order instance) => <String, dynamic>{
 
 Map<String, dynamic> _$ItemToJson(Item instance) => <String, dynamic>{
       'name': instance.name,
-      'amount_cents': _intToString(instance.amountCents),
+      'amount_cents': intToNullableString(instance.amountCents),
       'description': instance.description,
       'quantity': instance.quantity,
     };

@@ -4,11 +4,10 @@
 
 import 'dart:convert';
 
+import 'package:flutter_paymob/utils/json_utils.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'payment_key_request.g.dart';
-
-const String NA = "NA";
 
 String paymentKeyRequestToJson(PaymentKeyRequest data) =>
     json.encode(data.toJson());
@@ -27,22 +26,18 @@ class PaymentKeyRequest {
   });
 
   String authToken;
-  @JsonKey(toJson: _intToString)
+  @JsonKey(toJson: intToString)
   int amountCents;
   int expiration;
   String orderId;
   BillingData billingData;
   String currency;
   int integrationId;
-  @JsonKey(toJson: _boolToString)
+  @JsonKey(toJson: boolToString)
   bool lockOrderWhenPaid;
 
   Map<String, dynamic> toJson() => _$PaymentKeyRequestToJson(this);
 }
-
-String _boolToString(bool value) => value.toString();
-
-String _intToString(int value) => value.toString();
 
 @JsonSerializable(createFactory: false)
 class BillingData {
@@ -70,26 +65,24 @@ class BillingData {
   String email;
   @JsonKey(defaultValue: NA)
   String phoneNumber;
-  @JsonKey(toJson: _valueOrNA)
+  @JsonKey(toJson: valueOrNA)
   String? apartment;
-  @JsonKey(toJson: _valueOrNA)
+  @JsonKey(toJson: valueOrNA)
   String? floor;
-  @JsonKey(toJson: _valueOrNA)
+  @JsonKey(toJson: valueOrNA)
   String? street;
-  @JsonKey(toJson: _valueOrNA)
+  @JsonKey(toJson: valueOrNA)
   String? building;
-  @JsonKey(toJson: _valueOrNA)
+  @JsonKey(toJson: valueOrNA)
   String? shippingMethod;
-  @JsonKey(toJson: _valueOrNA)
+  @JsonKey(toJson: valueOrNA)
   String? postalCode;
-  @JsonKey(toJson: _valueOrNA)
+  @JsonKey(toJson: valueOrNA)
   String? city;
-  @JsonKey(toJson: _valueOrNA)
+  @JsonKey(toJson: valueOrNA)
   String? country;
-  @JsonKey(toJson: _valueOrNA)
+  @JsonKey(toJson: valueOrNA)
   String? state;
 
   Map<String, dynamic> toJson() => _$BillingDataToJson(this);
 }
-
-String _valueOrNA(Object? value) => value?.toString() ?? NA;

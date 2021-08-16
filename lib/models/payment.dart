@@ -5,11 +5,10 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:flutter_paymob/utils/json_utils.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'payment.g.dart';
-
-const String NA = "NA";
 
 String paymentToJson(Payment data) => json.encode(data.toJson());
 
@@ -30,9 +29,9 @@ class Payment {
   String paymentKey;
   bool saveCardDefault;
   bool showSaveCard;
-  @JsonKey(toJson: _colorToHex)
+  @JsonKey(toJson: colorToHex)
   Color? themeColor;
-  @JsonKey(toJson: _localeToLanguage)
+  @JsonKey(toJson: localeToLanguage)
   Locale? language;
   bool actionbar;
   String? token;
@@ -40,12 +39,6 @@ class Payment {
   Customer? customer;
 
   Map<String, dynamic> toJson() => _$PaymentToJson(this);
-}
-
-String _localeToLanguage(Locale? locale) => locale?.languageCode ?? 'en';
-
-String? _colorToHex(Color? color) {
-  return color == null ? null : '#${color.value.toRadixString(16)}';
 }
 
 @JsonSerializable(createFactory: false)
@@ -72,24 +65,22 @@ class Customer {
   String email;
   @JsonKey(defaultValue: NA)
   String phoneNumber;
-  @JsonKey(toJson: _valueOrNA)
+  @JsonKey(toJson: valueOrNA)
   String? apartment;
-  @JsonKey(toJson: _valueOrNA)
+  @JsonKey(toJson: valueOrNA)
   String? floor;
-  @JsonKey(toJson: _valueOrNA)
+  @JsonKey(toJson: valueOrNA)
   String? street;
-  @JsonKey(toJson: _valueOrNA)
+  @JsonKey(toJson: valueOrNA)
   String? building;
-  @JsonKey(toJson: _valueOrNA)
+  @JsonKey(toJson: valueOrNA)
   String? postalCode;
-  @JsonKey(toJson: _valueOrNA)
+  @JsonKey(toJson: valueOrNA)
   String? city;
-  @JsonKey(toJson: _valueOrNA)
+  @JsonKey(toJson: valueOrNA)
   String? country;
-  @JsonKey(toJson: _valueOrNA)
+  @JsonKey(toJson: valueOrNA)
   String? state;
 
   Map<String, dynamic> toJson() => _$CustomerToJson(this);
 }
-
-String _valueOrNA(Object? value) => value?.toString() ?? NA;
