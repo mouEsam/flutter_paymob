@@ -10,6 +10,7 @@ import 'models/payment_key_request.dart';
 import 'models/payment_result.dart';
 
 class FlutterPaymob {
+  static const BASE_URL = 'https://accept.paymob.com/api';
   static const MethodChannel _channel = const MethodChannel('flutter_paymob');
 
   static Future<String?> get platformVersion async {
@@ -20,12 +21,12 @@ class FlutterPaymob {
   // The Authentication request is an elementary step you should do before dealing with any of Accept's APIs.
   static Future<String> authenticateRequest(String apiKey) async {
     try {
-      http.Response response = await http.post(
-          Uri.parse('https://accept.paymob.com/api/auth/tokens'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: jsonEncode(<String, String>{"api_key": apiKey}));
+      http.Response response =
+          await http.post(Uri.parse('$BASE_URL/auth/tokens'),
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+              },
+              body: jsonEncode(<String, String>{"api_key": apiKey}));
       String? token = jsonDecode(response.body)['token'];
       if (token != null) {
         return token;
@@ -40,12 +41,12 @@ class FlutterPaymob {
   // At this step, you will register an order to Accept's database, so that you can pay for it later using a transaction.
   static Future<int> registerOrder(Order order) async {
     try {
-      http.Response response = await http.post(
-          Uri.parse('https://accept.paymob.com/api/ecommerce/orders'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: orderToJson(order));
+      http.Response response =
+          await http.post(Uri.parse('$BASE_URL/ecommerce/orders'),
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+              },
+              body: orderToJson(order));
       int? id = jsonDecode(response.body)['id'];
       if (id != null) {
         return id;
@@ -61,12 +62,12 @@ class FlutterPaymob {
   static Future<String> requestPaymentKey(
       PaymentKeyRequest paymentKeyRequest) async {
     try {
-      http.Response response = await http.post(
-          Uri.parse('https://accept.paymob.com/api/acceptance/payment_keys'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: paymentKeyRequestToJson(paymentKeyRequest));
+      http.Response response =
+          await http.post(Uri.parse('$BASE_URL/acceptance/payment_keys'),
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+              },
+              body: paymentKeyRequestToJson(paymentKeyRequest));
       String? token = jsonDecode(response.body)['token'];
       if (token != null) {
         return token;
