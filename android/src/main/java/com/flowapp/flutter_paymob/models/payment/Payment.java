@@ -31,7 +31,8 @@ public class Payment {
     public void setShowSaveCard(boolean value) { this.showSaveCard = value; }
 
     @JsonProperty("theme_color")
-    public Integer getThemeColor() { return themeColor == null ? null : Color.parseColor(themeColor) ; }
+    public Integer getThemeColor() {
+        return themeColor == null ? null : Color.parseColor(themeColor) ; }
     @JsonProperty("theme_color")
     public void setThemeColor(String value) { this.themeColor = value; }
 

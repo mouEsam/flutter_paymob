@@ -2,9 +2,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.flowapp.flutter_paymob_example">
    <application
-       tools:node="replace"
         android:label="flutter_paymob_example"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+       android:supportsRtl="true"
+       tools:replace="android:label,android:supportsRtl"
+       >
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

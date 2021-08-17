@@ -143,21 +143,20 @@ class FlutterPaymob {
   }
 
   static Future<PaymentResult?> startPayPage(
-      BuildContext context, Payment payment) async {
-    final nullableResult =
-        await PaymentPage.push(context, payment.paymentKey, payment.frameId!);
+      BuildContext context, String paymentKey, String frameId) async {
+    final nullableResult = await PaymentPage.push(context, paymentKey, frameId);
     return nullableResult;
   }
 
   static Future<PaymentResult> startPay(
-      BuildContext context, Payment payment) async {
+      BuildContext context, Payment payment, String frameId) async {
     try {
       PaymentResult result;
       if (Platform.isAndroid) {
         result = await startPayActivityNoToken(payment);
       } else {
-        final nullableResult = await PaymentPage.push(
-            context, payment.paymentKey, payment.frameId!);
+        final nullableResult =
+            await PaymentPage.push(context, payment.paymentKey, frameId);
         if (nullableResult == null) {
           throw PlatformException(code: 'USER_CANCELED');
         }

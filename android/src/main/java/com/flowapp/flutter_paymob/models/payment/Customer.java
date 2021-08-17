@@ -7,6 +7,7 @@ public class Customer {
     private String lastName;
     private String building;
     private String floor;
+    private String street;
     private String apartment;
     private String city;
     private String state;
@@ -34,6 +35,11 @@ public class Customer {
     public String getFloor() { return floor; }
     @JsonProperty("floor")
     public void setFloor(String value) { this.floor = value; }
+
+    @JsonProperty("street")
+    public String getStreet() { return street; }
+    @JsonProperty("street")
+    public void setStreet(String value) { this.street = value; }
 
     @JsonProperty("apartment")
     public String getApartment() { return apartment; }

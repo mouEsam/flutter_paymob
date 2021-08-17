@@ -7,7 +7,8 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
-import com.flowapp.flutter_paymob.models.payment.*;
+import com.flowapp.flutter_paymob.models.payment.Converter;
+import com.flowapp.flutter_paymob.models.payment.Payment;
 import com.paymob.acceptsdk.IntentConstants;
 import com.paymob.acceptsdk.PayActivity;
 import com.paymob.acceptsdk.PayActivityIntentKeys;
@@ -88,8 +89,10 @@ public class FlutterPaymobPlugin implements FlutterPlugin, MethodCallHandler, Ac
         intent.putExtra("language", payment.getLanguage());
         if (payment.getThemeColor() != null) {
             //this key is used to set the theme color(Actionbar, statusBar, button).
-            intent.putExtra(PayActivityIntentKeys.THEME_COLOR, payment.getThemeColor());
+            //intent.putExtra(PayActivityIntentKeys.THEME_COLOR, payment.getThemeColor());
+            //intent.putExtra(PayActivityIntentKeys.THEME_COLOR, context.getResources().getColor(R.color.colorAccent));
         }
+
         // this key is to whether display the Actionbar or not.
         intent.putExtra("ActionBar", payment.getActionbar());
         // this key is used to display the "save card" checkbox.
@@ -116,7 +119,7 @@ public class FlutterPaymobPlugin implements FlutterPlugin, MethodCallHandler, Ac
             case "StartPayActivityNoToken":
                 try {
                     pendingResult = result;
-                    Payment payment = Converter.fromJsonString(String.valueOf(call.argument("payment")));
+                    Payment payment = Converter.fromJsonString(call.argument("payment"));
                     StartPayActivityNoToken(payment);
                 } catch (IOException e) {
                     pendingResult.error("error", e.getMessage(), null);
@@ -125,7 +128,7 @@ public class FlutterPaymobPlugin implements FlutterPlugin, MethodCallHandler, Ac
             case "StartPayActivityToken":
                 try {
                     pendingResult = result;
-                    Payment payment = Converter.fromJsonString(String.valueOf(call.argument("payment")));
+                    Payment payment = Converter.fromJsonString(call.argument("payment"));
                     StartPayActivityToken(payment);
                 } catch (IOException e) {
                     pendingResult.error("error", e.getMessage(), null);
@@ -161,7 +164,14 @@ public class FlutterPaymobPlugin implements FlutterPlugin, MethodCallHandler, Ac
 
 
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-        Bundle extras = data.getExtras();
+
+        final Bundle extras;
+        if (data == null) {
+            extras = new Bundle();
+        } else {
+            extras = data.getExtras();
+        }
+
         if (requestCode == ACCEPT_PAYMENT_REQUEST) {
 
             if (resultCode == IntentConstants.USER_CANCELED) {

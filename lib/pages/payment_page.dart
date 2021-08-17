@@ -2,9 +2,9 @@ import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_paymob/models/payment_result.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
-class PaymentPage extends StatelessWidget {
+class PaymentPage extends StatefulWidget {
   final String token;
   final String? frameId;
 
@@ -21,32 +21,51 @@ class PaymentPage extends StatelessWidget {
   }
 
   @override
+  _PaymentPageState createState() => _PaymentPageState();
+}
+
+class _PaymentPageState extends State<PaymentPage> {
+  late FlutterWebviewPlugin flutterWebviewPlugin;
+
+  @override
+  void initState() {
+    super.initState();
+    flutterWebviewPlugin = FlutterWebviewPlugin();
+    flutterWebviewPlugin.onUrlChanged.listen((String url) {
+      final uri = Uri.parse(url);
+      if (uri.path.contains('post_pay')) {
+        // if (request.url.contains("txn_response_code=APPROVED")) {
+        final queryMap = uri.queryParameters;
+        final result = PaymentResult.fromJson(queryMap);
+        flutterWebviewPlugin.close();
+        Navigator.of(context).pop(result);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    flutterWebviewPlugin.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final frameId = this.frameId ?? 'default';
+    final frameId = this.widget.frameId ?? 'default';
     final checkoutUrl =
-        "https://accept.paymob.com/api/acceptance/iframes/$frameId?payment_token=$token";
+        "https://accept.paymob.com/api/acceptance/iframes/$frameId?payment_token=${widget.token}";
     final theme = Theme.of(context);
-    return Scaffold(
-      backgroundColor: theme.backgroundColor,
+    return WebviewScaffold(
+      url: checkoutUrl,
+      withJavascript: true,
       appBar: AppBar(
         title: Text("PayMob"),
       ),
-      body: WebView(
-        initialUrl: checkoutUrl,
-        javascriptMode: JavascriptMode.unrestricted,
-        navigationDelegate: (NavigationRequest request) {
-          final uri = Uri.parse(request.url);
-          if (uri.path.contains('post_pay')) {
-            // if (request.url.contains("txn_response_code=APPROVED")) {
-            final queryMap = uri.queryParameters;
-            final result = PaymentResult.fromJson(queryMap);
-            Navigator.of(context).pop(result);
-          }
-          // if (request.url.contains(cancelURL)) {
-          //   Navigator.of(context).pop();
-          // }
-          return NavigationDecision.navigate;
-        },
+      initialChild: Container(
+        color: Colors.redAccent,
+        child: const Center(
+          child: Text('Waiting.....'),
+        ),
       ),
     );
   }

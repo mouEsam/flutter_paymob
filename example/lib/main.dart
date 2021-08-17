@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_paymob/flutter_paymob.dart';
@@ -19,7 +20,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String apiKey =
       'ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SndjbTltYVd4bFgzQnJJam94TURRekxDSmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2libUZ0WlNJNkltbHVhWFJwWVd3aWZRLjI5QThEV0hhUGE4Qlk2R0syRm12NldKM0RqYTdxUGgtcmNjeW5rMU1PRDQ1Ukxqa01xakllU2JNVXJYYS1rLTBFazUxYVBmX3Bad05rVXJIbHQ5SEFn';
-  String iframeId = '3474';
+  String frameId = '3474';
   int integrationId = 2946;
   String _auth = '';
 
@@ -57,7 +58,7 @@ class _MyAppState extends State<MyApp> {
           deliveryNeeded: false,
           amountCents: 100,
           currency: "EGP",
-          merchantOrderId: 19,
+          merchantOrderId: Random().nextInt(100000),
           items: [
             Item(
                 name: "ASC1515",
@@ -158,7 +159,6 @@ class _MyAppState extends State<MyApp> {
         themeColor: Color(0xFF002B36),
         language: Locale("ar"),
         actionbar: true,
-        frameId: iframeId,
       ));
       if (!mounted) return;
 
@@ -166,6 +166,29 @@ class _MyAppState extends State<MyApp> {
         _result = result.dataMessage;
         _token = result.cardToken;
         _maskedPan = result.maskedPan;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = '$e';
+      });
+    }
+  }
+
+  Future<void> startPayPage(BuildContext context) async {
+    try {
+      PaymentResult? result =
+          await FlutterPaymob.startPayPage(context, _paymentKey, frameId);
+      if (!mounted) return;
+
+      setState(() {
+        if (result != null) {
+          _result = result.dataMessage;
+          _token = result.cardToken;
+          _maskedPan = result.maskedPan;
+        } else {
+          _result = 'User cancelled';
+        }
       });
     } catch (e) {
       if (!mounted) return;
@@ -186,7 +209,6 @@ class _MyAppState extends State<MyApp> {
         actionbar: true,
         token: _token,
         maskedPanNumber: _maskedPan,
-        frameId: iframeId,
         customer: Customer(
             firstName: "Eman",
             lastName: "Ahmed",
@@ -214,67 +236,75 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              ElevatedButton(
-                onPressed: () async {
-                  await authenticateRequest();
-                },
-                child: Text('Authentication Request'),
-              ),
-              Text('auth: $_auth'),
-              ElevatedButton(
-                onPressed: () async {
-                  await registerOrder();
-                },
-                child: Text('Order Registration API'),
-              ),
-              Text('orderId: $_orderId'),
-              ElevatedButton(
-                onPressed: () async {
-                  await requestPaymentKey();
-                },
-                child: Text('Payment Key Request'),
-              ),
-              Text('paymentKey: $_paymentKey'),
-              Divider(),
-              ElevatedButton(
-                onPressed: () async {
-                  await startPayActivityNoToken();
-                },
-                child: Text('startPayActivityNoToken'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  await startPayActivityToken();
-                },
-                child: Text('startPayActivityToken'),
-              ),
-              Text(
-                'error: $_error',
-                style: TextStyle(color: Colors.red),
-              ),
-              Text(
-                "TRANSACTION_SUCCESSFUL : ",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text('result: ${_result ?? _unknown}'),
-              Text(
-                "TRANSACTION_SUCCESSFUL_CARD_SAVED",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text('token: ${_token ?? _unknown}'),
-              Text('maskedPan: ${_maskedPan ?? _unknown}'),
-            ],
+      home: Builder(builder: (context) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Plugin example app'),
           ),
-        ),
-      ),
+          body: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    await authenticateRequest();
+                  },
+                  child: Text('Authentication Request'),
+                ),
+                Text('auth: $_auth'),
+                ElevatedButton(
+                  onPressed: () async {
+                    await registerOrder();
+                  },
+                  child: Text('Order Registration API'),
+                ),
+                Text('orderId: $_orderId'),
+                ElevatedButton(
+                  onPressed: () async {
+                    await requestPaymentKey();
+                  },
+                  child: Text('Payment Key Request'),
+                ),
+                Text('paymentKey: $_paymentKey'),
+                Divider(),
+                ElevatedButton(
+                  onPressed: () async {
+                    await startPayActivityNoToken();
+                  },
+                  child: Text('startPayActivityNoToken'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    await startPayActivityToken();
+                  },
+                  child: Text('startPayActivityToken'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    await startPayPage(context);
+                  },
+                  child: Text('startPayActivity'),
+                ),
+                Text(
+                  'error: $_error',
+                  style: TextStyle(color: Colors.red),
+                ),
+                Text(
+                  "TRANSACTION_SUCCESSFUL : ",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text('result: ${_result ?? _unknown}'),
+                Text(
+                  "TRANSACTION_SUCCESSFUL_CARD_SAVED",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text('token: ${_token ?? _unknown}'),
+                Text('maskedPan: ${_maskedPan ?? _unknown}'),
+              ],
+            ),
+          ),
+        );
+      }),
     );
   }
 }

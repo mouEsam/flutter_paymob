@@ -10,6 +10,10 @@ String? colorToHex(Color? color) {
   return color == null ? null : '#${color.value.toRadixString(16)}';
 }
 
+int? colorToInt(Color? color) {
+  return color?.value;
+}
+
 String valueOrNA(Object? value) => value?.toString() ?? NA;
 
 String boolToString(bool value) => value.toString();
