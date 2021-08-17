@@ -35,7 +35,6 @@ class PaymentPage extends StatelessWidget {
         initialUrl: checkoutUrl,
         javascriptMode: JavascriptMode.unrestricted,
         navigationDelegate: (NavigationRequest request) {
-          print(request.url);
           final uri = Uri.parse(request.url);
           if (uri.path.contains('post_pay')) {
             // if (request.url.contains("txn_response_code=APPROVED")) {

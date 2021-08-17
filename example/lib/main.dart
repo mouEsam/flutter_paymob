@@ -18,7 +18,9 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String apiKey =
-      'ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2ljSEp2Wm1sc1pWOXdheUk2TVRBMk1qZ3dMQ0p1WVcxbElqb2lhVzVwZEdsaGJDSjkuMFVLTTZLZFNhcExTaWo0MWE5MVJ6UU5fcDJ2bm41ZEYyaG11YlQzb2Y3aVVMV0RTLTFXWjZlRnhSYzRtckxINVFkQkFpckJ3OHNONFEyRUNfamMxOHc=';
+      'ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SndjbTltYVd4bFgzQnJJam94TURRekxDSmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2libUZ0WlNJNkltbHVhWFJwWVd3aWZRLjI5QThEV0hhUGE4Qlk2R0syRm12NldKM0RqYTdxUGgtcmNjeW5rMU1PRDQ1Ukxqa01xakllU2JNVXJYYS1rLTBFazUxYVBmX3Bad05rVXJIbHQ5SEFn';
+  String iframeId = '3474';
+  int integrationId = 2946;
   String _auth = '';
 
   int? _orderId;
@@ -52,8 +54,8 @@ class _MyAppState extends State<MyApp> {
       int result = await FlutterPaymob.registerOrder(
         Order(
           authToken: _auth,
-          deliveryNeeded: "false",
-          amountCents: "100",
+          deliveryNeeded: false,
+          amountCents: 100,
           currency: "EGP",
           merchantOrderId: 19,
           items: [
@@ -113,7 +115,6 @@ class _MyAppState extends State<MyApp> {
         PaymentKeyRequest(
           authToken: _auth,
           amountCents: 100,
-          expiration: 3600,
           orderId: _orderId.toString(),
           billingData: BillingData(
               apartment: "803",
@@ -129,7 +130,7 @@ class _MyAppState extends State<MyApp> {
               lastName: "Nicolas",
               state: "Utah"),
           currency: "EGP",
-          integrationId: 273760,
+          integrationId: integrationId,
           lockOrderWhenPaid: false,
         ),
       );
@@ -157,6 +158,7 @@ class _MyAppState extends State<MyApp> {
         themeColor: Color(0xFF002B36),
         language: Locale("ar"),
         actionbar: true,
+        frameId: iframeId,
       ));
       if (!mounted) return;
 
@@ -184,6 +186,7 @@ class _MyAppState extends State<MyApp> {
         actionbar: true,
         token: _token,
         maskedPanNumber: _maskedPan,
+        frameId: iframeId,
         customer: Customer(
             firstName: "Eman",
             lastName: "Ahmed",

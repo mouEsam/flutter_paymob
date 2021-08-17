@@ -17,11 +17,11 @@ class PaymentKeyRequest {
   PaymentKeyRequest({
     required this.authToken,
     required this.amountCents,
-    required this.expiration,
     required this.orderId,
     required this.billingData,
     required this.currency,
     required this.integrationId,
+    this.expiration = 3600,
     this.lockOrderWhenPaid = true,
   });
 

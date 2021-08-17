@@ -25,8 +25,10 @@ class Order {
   });
 
   String authToken;
-  String deliveryNeeded;
-  String amountCents;
+  @JsonKey(toJson: boolToString)
+  bool deliveryNeeded;
+  @JsonKey(toJson: intToString)
+  int amountCents;
   String currency;
   int? merchantOrderId;
   List<Item> items;

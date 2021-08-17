@@ -4,8 +4,11 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_paymob/models/refund_request.dart';
+import 'package:flutter_paymob/utils/json_utils.dart';
 import 'package:http/http.dart' as http;
 
+import 'models/capture_request.dart';
 import 'models/order.dart';
 import 'models/payment.dart';
 import 'models/payment_key_request.dart';
@@ -77,6 +80,39 @@ class FlutterPaymob {
       } else {
         throw jsonDecode(response.body);
       }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  static Future<bool> captureTransaction(CaptureRequest captureRequest) async {
+    try {
+      http.Response response =
+          await http.post(Uri.parse('$BASE_URL/acceptance/capture'),
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+              },
+              body: captureRequestToJson(captureRequest));
+      final responseBody = jsonDecode(response.body)['obj'];
+      final success = stringToBool(responseBody['success']) &&
+          stringToBool(responseBody['is_capture']);
+      return success;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  static Future<bool> refundTransaction(RefundRequest refundRequest) async {
+    try {
+      http.Response response =
+          await http.post(Uri.parse('$BASE_URL/acceptance/void_refund/refund'),
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+              },
+              body: refundRequestToJson(refundRequest));
+      final responseBody = jsonDecode(response.body)['obj'];
+      final success = stringToBool(responseBody['success']);
+      return success;
     } catch (e) {
       throw e;
     }

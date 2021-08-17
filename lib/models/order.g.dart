@@ -8,8 +8,8 @@ part of 'order.dart';
 
 Map<String, dynamic> _$OrderToJson(Order instance) => <String, dynamic>{
       'auth_token': instance.authToken,
-      'delivery_needed': instance.deliveryNeeded,
-      'amount_cents': instance.amountCents,
+      'delivery_needed': boolToString(instance.deliveryNeeded),
+      'amount_cents': intToString(instance.amountCents),
       'currency': instance.currency,
       'merchant_order_id': instance.merchantOrderId,
       'items': instance.items,
