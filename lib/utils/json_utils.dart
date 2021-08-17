@@ -15,3 +15,19 @@ String valueOrNA(Object? value) => value?.toString() ?? NA;
 String boolToString(bool value) => value.toString();
 
 String intToString(int value) => value.toString();
+
+int stringToInt(String? data) =>
+    (data == null ? null : int.tryParse(data)) ?? 0;
+
+bool? stringToNullableBool(String? data) {
+  switch (data) {
+    case "true":
+      return true;
+    case "false":
+      return false;
+    default:
+      return null;
+  }
+}
+
+bool stringToBool(String? data) => stringToNullableBool(data) ?? false;

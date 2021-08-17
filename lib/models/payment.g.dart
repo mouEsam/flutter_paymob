@@ -14,6 +14,7 @@ Map<String, dynamic> _$PaymentToJson(Payment instance) => <String, dynamic>{
       'language': localeToLanguage(instance.language),
       'actionbar': instance.actionbar,
       'token': instance.token,
+      'frame_id': instance.frameId,
       'masked_pan_number': instance.maskedPanNumber,
       'customer': instance.customer,
     };

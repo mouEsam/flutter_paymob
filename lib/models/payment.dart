@@ -17,6 +17,7 @@ class Payment {
   Payment({
     required this.paymentKey,
     this.token,
+    this.frameId,
     this.saveCardDefault = false,
     this.showSaveCard = true,
     this.themeColor,
@@ -35,6 +36,7 @@ class Payment {
   Locale? language;
   bool actionbar;
   String? token;
+  String? frameId;
   String? maskedPanNumber;
   Customer? customer;
 

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
@@ -8,6 +10,7 @@ import 'models/order.dart';
 import 'models/payment.dart';
 import 'models/payment_key_request.dart';
 import 'models/payment_result.dart';
+import 'pages/payment_page.dart';
 
 class FlutterPaymob {
   static const BASE_URL = 'https://accept.paymob.com/api';
@@ -86,7 +89,6 @@ class FlutterPaymob {
     try {
       final String result = await _channel.invokeMethod(
           'StartPayActivityNoToken', {"payment": paymentToJson(payment)});
-      print(result);
       return paymentResultFromJson(result);
     } on PlatformException catch (e) {
       throw e;
@@ -94,10 +96,37 @@ class FlutterPaymob {
   }
 
   //start pay activity with token
-  static Future<String> startPayActivityToken(Payment payment) async {
+  static Future<PaymentResult> startPayActivityToken(Payment payment) async {
     try {
       final String result = await _channel.invokeMethod(
           'StartPayActivityToken', {"payment": paymentToJson(payment)});
+      return paymentResultFromJson(result);
+    } on PlatformException catch (e) {
+      throw e;
+    }
+  }
+
+  static Future<PaymentResult?> startPayPage(
+      BuildContext context, Payment payment) async {
+    final nullableResult =
+        await PaymentPage.push(context, payment.paymentKey, payment.frameId!);
+    return nullableResult;
+  }
+
+  static Future<PaymentResult> startPay(
+      BuildContext context, Payment payment) async {
+    try {
+      PaymentResult result;
+      if (Platform.isAndroid) {
+        result = await startPayActivityNoToken(payment);
+      } else {
+        final nullableResult = await PaymentPage.push(
+            context, payment.paymentKey, payment.frameId!);
+        if (nullableResult == null) {
+          throw PlatformException(code: 'USER_CANCELED');
+        }
+        result = nullableResult;
+      }
       return result;
     } on PlatformException catch (e) {
       throw e;

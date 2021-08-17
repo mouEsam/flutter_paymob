@@ -162,7 +162,7 @@ class _MyAppState extends State<MyApp> {
 
       setState(() {
         _result = result.dataMessage;
-        _token = result.token;
+        _token = result.cardToken;
         _maskedPan = result.maskedPan;
       });
     } catch (e) {
@@ -175,7 +175,7 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> startPayActivityToken() async {
     try {
-      String result = await FlutterPaymob.startPayActivityToken(Payment(
+      final result = await FlutterPaymob.startPayActivityToken(Payment(
         paymentKey: _paymentKey,
         saveCardDefault: false,
         showSaveCard: true,
@@ -198,7 +198,7 @@ class _MyAppState extends State<MyApp> {
       if (!mounted) return;
 
       setState(() {
-        _result = result;
+        _result = result.dataMessage;
       });
     } catch (e) {
       if (!mounted) return;

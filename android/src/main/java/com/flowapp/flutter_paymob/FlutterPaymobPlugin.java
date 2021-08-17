@@ -7,19 +7,17 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.flowapp.flutter_paymob.models.payment.Converter;
-import com.flowapp.flutter_paymob.models.payment.Payment;
-import com.flowapp.flutter_paymob.models.result.PaymentResult;
-import com.flowapp.flutter_paymob.models.result.ResultConverter;
+import com.flowapp.flutter_paymob.models.payment.*;
 import com.paymob.acceptsdk.IntentConstants;
 import com.paymob.acceptsdk.PayActivity;
 import com.paymob.acceptsdk.PayActivityIntentKeys;
-import com.paymob.acceptsdk.PayResponseKeys;
-import com.paymob.acceptsdk.SaveCardResponseKeys;
 import com.paymob.acceptsdk.ThreeDSecureWebViewActivty;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
+import java.util.Set;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
@@ -45,57 +43,23 @@ public class FlutterPaymobPlugin implements FlutterPlugin, MethodCallHandler, Ac
     private Activity activity;
     private Context context;
     private Result pendingResult;
-    private Payment payment;
 
-
-    public void StartPayActivityNoToken() {
-        Intent pay_intent = new Intent(context, PayActivity.class);
-        putNormalExtras(pay_intent);
-
-        // this key is used to save the card by default.
-        pay_intent.putExtra(PayActivityIntentKeys.SAVE_CARD_DEFAULT, payment.getSaveCardDefault());
-
-        // this key is used to display the save card checkbox.
-        pay_intent.putExtra(PayActivityIntentKeys.SHOW_SAVE_CARD, payment.getShowSaveCard());
-
-        //this key is used to set the theme color(Actionbar, statusBar, button).
-        pay_intent.putExtra(PayActivityIntentKeys.THEME_COLOR, payment.getThemeColor());
-
-        // this key is to wether display the Actionbar or not.
-        pay_intent.putExtra("ActionBar", payment.getActionbar());
-
-        // this key is used to define the language. takes for ex ("ar", "en") as inputs.
-        pay_intent.putExtra("language", payment.getLanguage());
+    public void StartPayActivityNoToken(Payment payment) {
+        Intent pay_intent = createIntent(payment);
 
         activity.startActivityForResult(pay_intent, ACCEPT_PAYMENT_REQUEST);
         Intent secure_intent = new Intent(context, ThreeDSecureWebViewActivty.class);
         secure_intent.putExtra("ActionBar", payment.getActionbar());
     }
 
-    public void StartPayActivityToken() {
-        Intent pay_intent = new Intent(context, PayActivity.class);
-        putNormalExtras(pay_intent);
+    public void StartPayActivityToken(Payment payment) {
+        Intent pay_intent = createIntent(payment);
 
-        // this key is used to define the language. takes for ex ("ar", "en") as inputs.
-        pay_intent.putExtra("language", payment.getLanguage());
         pay_intent.putExtra(PayActivityIntentKeys.TOKEN, payment.getToken());
         // card masked Pan in case of saved card.
 
         if (payment.getMaskedPanNumber() != null) {
             pay_intent.putExtra(PayActivityIntentKeys.MASKED_PAN_NUMBER, payment.getMaskedPanNumber());
-        }
-
-        // this key is used to save the card by deafult.
-        pay_intent.putExtra(PayActivityIntentKeys.SAVE_CARD_DEFAULT, payment.getSaveCardDefault());
-
-        // this key is used to display the savecard checkbox.
-        pay_intent.putExtra(PayActivityIntentKeys.SHOW_SAVE_CARD, payment.getShowSaveCard());
-
-        pay_intent.putExtra("ActionBar", payment.getActionbar());
-
-        if (payment.getThemeColor() != null) {
-            //this key is used to set the theme color(Actionbar, statusBar, button).
-            pay_intent.putExtra(PayActivityIntentKeys.THEME_COLOR, payment.getThemeColor());
         }
 
         if (payment.getCustomer() != null) {
@@ -116,9 +80,23 @@ public class FlutterPaymobPlugin implements FlutterPlugin, MethodCallHandler, Ac
         activity.startActivityForResult(pay_intent, ACCEPT_PAYMENT_REQUEST);
     }
 
-    private void putNormalExtras(Intent intent) {
+    private Intent createIntent(Payment payment) {
+        Intent intent = new Intent(context, PayActivity.class);
         intent.putExtra(PayActivityIntentKeys.PAYMENT_KEY, payment.getPaymentKey());
         intent.putExtra(PayActivityIntentKeys.THREE_D_SECURE_ACTIVITY_TITLE, "Verification");
+        // this key is used to define the language. takes for ex ("ar", "en") as inputs.
+        intent.putExtra("language", payment.getLanguage());
+        if (payment.getThemeColor() != null) {
+            //this key is used to set the theme color(Actionbar, statusBar, button).
+            intent.putExtra(PayActivityIntentKeys.THEME_COLOR, payment.getThemeColor());
+        }
+        // this key is to whether display the Actionbar or not.
+        intent.putExtra("ActionBar", payment.getActionbar());
+        // this key is used to display the "save card" checkbox.
+        intent.putExtra(PayActivityIntentKeys.SHOW_SAVE_CARD, payment.getShowSaveCard());
+        // this key is used to save the card by default.
+        intent.putExtra(PayActivityIntentKeys.SAVE_CARD_DEFAULT, payment.getSaveCardDefault());
+        return intent;
     }
 
     @Override
@@ -138,20 +116,20 @@ public class FlutterPaymobPlugin implements FlutterPlugin, MethodCallHandler, Ac
             case "StartPayActivityNoToken":
                 try {
                     pendingResult = result;
-                    payment = Converter.fromJsonString(String.valueOf(call.argument("payment")));
+                    Payment payment = Converter.fromJsonString(String.valueOf(call.argument("payment")));
+                    StartPayActivityNoToken(payment);
                 } catch (IOException e) {
                     pendingResult.error("error", e.getMessage(), null);
                 }
-                StartPayActivityNoToken();
                 break;
             case "StartPayActivityToken":
                 try {
                     pendingResult = result;
-                    payment = Converter.fromJsonString(String.valueOf(call.argument("payment")));
+                    Payment payment = Converter.fromJsonString(String.valueOf(call.argument("payment")));
+                    StartPayActivityToken(payment);
                 } catch (IOException e) {
                     pendingResult.error("error", e.getMessage(), null);
                 }
-                StartPayActivityToken();
                 break;
             default:
                 result.notImplemented();
@@ -164,8 +142,17 @@ public class FlutterPaymobPlugin implements FlutterPlugin, MethodCallHandler, Ac
         channel.setMethodCallHandler(null);
     }
 
-    private void finishWithSuccess(String msg) {
-        pendingResult.success(msg);
+    private void finishWithSuccess(Bundle bundle) {
+        JSONObject json = new JSONObject();
+        Set<String> keys = bundle.keySet();
+        for (String key : keys) {
+            try {
+                json.put(key, bundle.get(key));
+            } catch(JSONException e) {
+                //Handle exception here
+            }
+        }
+        pendingResult.success(json.toString());
     }
 
     private void finishWithError(String errorCode, String errorMessage, String details) {
@@ -175,7 +162,6 @@ public class FlutterPaymobPlugin implements FlutterPlugin, MethodCallHandler, Ac
 
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
         Bundle extras = data.getExtras();
-
         if (requestCode == ACCEPT_PAYMENT_REQUEST) {
 
             if (resultCode == IntentConstants.USER_CANCELED) {
@@ -192,7 +178,8 @@ public class FlutterPaymobPlugin implements FlutterPlugin, MethodCallHandler, Ac
 
                 // Use the static keys declared in PayResponseKeys to extract the fields you want
 
-                finishWithError("TRANSACTION_REJECTED", extras.getString(PayResponseKeys.DATA_MESSAGE), null);
+//                finishWithError("TRANSACTION_REJECTED", extras.getString(PayResponseKeys.DATA_MESSAGE), null);
+                finishWithSuccess(extras);
             } else if (resultCode == IntentConstants.TRANSACTION_REJECTED_PARSING_ISSUE) {
                 // User attempted to pay but their transaction was rejected. An error occured while reading the returned JSON
                 finishWithError("TRANSACTION_REJECTED_PARSING_ISSUE", extras.getString(IntentConstants.RAW_PAY_RESPONSE), null);
@@ -200,31 +187,19 @@ public class FlutterPaymobPlugin implements FlutterPlugin, MethodCallHandler, Ac
                 // User finished their payment successfullyTRANSACTION_SUCCESSFUL
 
                 // Use the static keys declared in PayResponseKeys to extract the fields you want
-                finishWithSuccess(extras.getString(PayResponseKeys.DATA_MESSAGE));
-
+                finishWithSuccess(extras);
             } else if (resultCode == IntentConstants.TRANSACTION_SUCCESSFUL_PARSING_ISSUE) {
                 // User finished their payment successfully. An error occured while reading the returned JSON.
                 finishWithError("TRANSACTION_SUCCESSFUL_PARSING_ISSUE", "TRANSACTION_SUCCESSFUL - Parsing Issue", null);
-                // ToastMaker.displayShortToast(this, extras.getString(IntentConstants.RAW_PAY_RESPONSE));
             } else if (resultCode == IntentConstants.TRANSACTION_SUCCESSFUL_CARD_SAVED) {
-                // User finished their payment successfully and card was TRANSACTION_SUCCESSFUL_CARD_SAVEDsaved.
-                PaymentResult paymentResult = new PaymentResult();
-                paymentResult.setToken(extras.getString(SaveCardResponseKeys.TOKEN));
-                paymentResult.setMaskedPan(extras.getString(SaveCardResponseKeys.MASKED_PAN));
-                // Use the static keys declared in PayResponseKeys to extract the fields you want
-
-                // Use the static keys declared in PayResponseKeys to extract the fields you want
-                // Use the static keys declared in SaveCardResponseKeys to extract the fields you want
-                try {
-                    finishWithSuccess(ResultConverter.toJsonString(paymentResult));
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
+                // User finished their payment successfully and card was TRANSACTION_SUCCESSFUL_CARD_SAVED saved.
+                finishWithSuccess(extras);
             } else if (resultCode == IntentConstants.USER_CANCELED_3D_SECURE_VERIFICATION) {
 
                 // Note that a payment process was attempted. You can extract the original returned values
                 // Use the static keys declared in PayResponseKeys to extract the fields you want
-                finishWithError("USER_CANCELED_3D_SECURE_VERIFICATION", "User canceled 3-d scure verification!!", extras.getString(PayResponseKeys.PENDING));
+//                finishWithError("USER_CANCELED_3D_SECURE_VERIFICATION", "User canceled 3-d scure verification!!", extras.getString(PayResponseKeys.PENDING));
+                finishWithSuccess(extras);
             } else if (resultCode == IntentConstants.USER_CANCELED_3D_SECURE_VERIFICATION_PARSING_ISSUE) {
 
                 // Note that a payment process was attempted.

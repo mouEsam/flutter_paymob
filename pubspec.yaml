@@ -12,6 +12,7 @@ dependencies:
     sdk: flutter
   http: ^0.13.3
   json_annotation: any
+  webview_flutter: ^2.0.12
 
 dev_dependencies:
   flutter_test:
@@ -33,8 +34,8 @@ flutter:
       android:
         package: com.flowapp.flutter_paymob
         pluginClass: FlutterPaymobPlugin
-      ios:
-        pluginClass: FlutterPaymobPlugin
+#      ios:
+#        pluginClass: FlutterPaymobPlugin
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:
