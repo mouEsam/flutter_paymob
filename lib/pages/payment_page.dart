@@ -32,6 +32,7 @@ class _PaymentPageState extends State<PaymentPage> {
     super.initState();
     flutterWebviewPlugin = FlutterWebviewPlugin();
     flutterWebviewPlugin.onUrlChanged.listen((String url) {
+      print(url);
       final uri = Uri.parse(url);
       if (uri.path.contains('post_pay')) {
         // if (request.url.contains("txn_response_code=APPROVED")) {
@@ -64,7 +65,7 @@ class _PaymentPageState extends State<PaymentPage> {
       initialChild: Container(
         color: Colors.redAccent,
         child: const Center(
-          child: Text('Waiting.....'),
+          child: CircularProgressIndicator.adaptive(),
         ),
       ),
     );

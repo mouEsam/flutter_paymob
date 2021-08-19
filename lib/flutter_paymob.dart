@@ -30,7 +30,8 @@ class FlutterPaymob {
       http.Response response =
           await http.post(Uri.parse('$BASE_URL/auth/tokens'),
               headers: <String, String>{
-                'Content-Type': 'application/json; charset=UTF-8',
+                HttpHeaders.contentTypeHeader:
+                    'application/json; charset=UTF-8',
               },
               body: jsonEncode(<String, String>{"api_key": apiKey}));
       String? token = jsonDecode(response.body)['token'];
@@ -50,7 +51,8 @@ class FlutterPaymob {
       http.Response response =
           await http.post(Uri.parse('$BASE_URL/ecommerce/orders'),
               headers: <String, String>{
-                'Content-Type': 'application/json; charset=UTF-8',
+                HttpHeaders.contentTypeHeader:
+                    'application/json; charset=UTF-8',
               },
               body: orderToJson(order));
       int? id = jsonDecode(response.body)['id'];
@@ -71,7 +73,8 @@ class FlutterPaymob {
       http.Response response =
           await http.post(Uri.parse('$BASE_URL/acceptance/payment_keys'),
               headers: <String, String>{
-                'Content-Type': 'application/json; charset=UTF-8',
+                HttpHeaders.contentTypeHeader:
+                    'application/json; charset=UTF-8',
               },
               body: paymentKeyRequestToJson(paymentKeyRequest));
       String? token = jsonDecode(response.body)['token'];
@@ -90,10 +93,11 @@ class FlutterPaymob {
       http.Response response =
           await http.post(Uri.parse('$BASE_URL/acceptance/capture'),
               headers: <String, String>{
-                'Content-Type': 'application/json; charset=UTF-8',
+                HttpHeaders.contentTypeHeader:
+                    'application/json; charset=UTF-8',
               },
               body: captureRequestToJson(captureRequest));
-      final responseBody = jsonDecode(response.body)['obj'];
+      final responseBody = jsonDecode(response.body);
       final success = stringToBool(responseBody['success']) &&
           stringToBool(responseBody['is_capture']);
       return success;
@@ -107,13 +111,33 @@ class FlutterPaymob {
       http.Response response =
           await http.post(Uri.parse('$BASE_URL/acceptance/void_refund/refund'),
               headers: <String, String>{
-                'Content-Type': 'application/json; charset=UTF-8',
+                HttpHeaders.contentTypeHeader:
+                    'application/json; charset=UTF-8',
               },
               body: refundRequestToJson(refundRequest));
-      final responseBody = jsonDecode(response.body)['obj'];
+      final responseBody = jsonDecode(response.body);
       final success = stringToBool(responseBody['success']);
       return success;
     } catch (e) {
+      throw e;
+    }
+  }
+
+  static Future<PaymentResult> retrieveTransaction(
+      String authToken, String transactionId) async {
+    try {
+      http.Response response = await http.get(
+          Uri.parse('$BASE_URL/acceptance/transactions/$transactionId'),
+          headers: <String, String>{
+            HttpHeaders.contentTypeHeader: 'application/json; charset=UTF-8',
+            HttpHeaders.authorizationHeader: 'Bearer $authToken'
+          });
+      print(response.body);
+      final paymentResult = paymentResultFromJson(response.body);
+      return paymentResult;
+    } catch (e, s) {
+      print(e);
+      print(s);
       throw e;
     }
   }
@@ -125,7 +149,7 @@ class FlutterPaymob {
     try {
       final String result = await _channel.invokeMethod(
           'StartPayActivityNoToken', {"payment": paymentToJson(payment)});
-      return paymentResultFromJson(result);
+      return paymentResultFromFlatJson(result);
     } on PlatformException catch (e) {
       throw e;
     }
@@ -136,7 +160,7 @@ class FlutterPaymob {
     try {
       final String result = await _channel.invokeMethod(
           'StartPayActivityToken', {"payment": paymentToJson(payment)});
-      return paymentResultFromJson(result);
+      return paymentResultFromFlatJson(result);
     } on PlatformException catch (e) {
       throw e;
     }

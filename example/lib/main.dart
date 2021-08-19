@@ -21,7 +21,8 @@ class _MyAppState extends State<MyApp> {
   String apiKey =
       'ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SndjbTltYVd4bFgzQnJJam94TURRekxDSmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2libUZ0WlNJNkltbHVhWFJwWVd3aWZRLjI5QThEV0hhUGE4Qlk2R0syRm12NldKM0RqYTdxUGgtcmNjeW5rMU1PRDQ1Ukxqa01xakllU2JNVXJYYS1rLTBFazUxYVBmX3Bad05rVXJIbHQ5SEFn';
   String frameId = '3474';
-  int integrationId = 2946;
+  String transactionId = '11914551';
+  int integrationId = 623660;
   String _auth = '';
 
   int? _orderId;
@@ -75,7 +76,7 @@ class _MyAppState extends State<MyApp> {
               apartment: "803",
               email: "claudette09@exa.com",
               floor: "42",
-              firstName: "Clifford",
+              firstName: "Ahmed1",
               street: "Ethan Land",
               building: "8028",
               phoneNumber: "+86(8)9135210487",
@@ -121,7 +122,7 @@ class _MyAppState extends State<MyApp> {
               apartment: "803",
               email: "claudette09@exa.com",
               floor: "42",
-              firstName: "Clifford",
+              firstName: "Ahmed2",
               street: "Ethan Land",
               building: "8028",
               phoneNumber: "+86(8)9135210487",
@@ -141,6 +142,30 @@ class _MyAppState extends State<MyApp> {
         _paymentKey = result;
       });
     } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _error = '$e';
+      });
+    }
+  }
+
+  Future<void> retrieveTransaction() async {
+    try {
+      final result =
+          await FlutterPaymob.retrieveTransaction(_auth, transactionId);
+      if (!mounted) return;
+
+      print(result.cardToken);
+
+      setState(() {
+        _result = result.dataMessage;
+        _token = result.cardToken;
+        _maskedPan = result.maskedPan;
+      });
+    } catch (e, s) {
+      print(e);
+      print(s);
       if (!mounted) return;
 
       setState(() {
@@ -267,6 +292,12 @@ class _MyAppState extends State<MyApp> {
                 ),
                 Text('paymentKey: $_paymentKey'),
                 Divider(),
+                ElevatedButton(
+                  onPressed: () async {
+                    await retrieveTransaction();
+                  },
+                  child: Text('retrieveTransaction'),
+                ),
                 ElevatedButton(
                   onPressed: () async {
                     await startPayActivityNoToken();

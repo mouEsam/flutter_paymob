@@ -10,6 +10,9 @@ import 'package:json_annotation/json_annotation.dart';
 part 'payment_result.g.dart';
 
 PaymentResult paymentResultFromJson(String str) =>
+    PaymentResult.fromJson(flattenMap(json.decode(str)));
+
+PaymentResult paymentResultFromFlatJson(String str) =>
     PaymentResult.fromJson(json.decode(str));
 
 @JsonSerializable(createToJson: false)
@@ -48,9 +51,9 @@ class PaymentResult {
     this.email,
   );
 
-  @JsonKey(fromJson: stringToInt)
+  @JsonKey(fromJson: dynamicToInt)
   final int amountCents;
-  @JsonKey(fromJson: stringToInt)
+  @JsonKey(fromJson: dynamicToInt)
   final int capturedAmount;
   final DateTime? createdAt;
   final String? currency;
@@ -60,35 +63,39 @@ class PaymentResult {
   final String? cardToken;
   final String? maskedPan;
   final String? email;
-  @JsonKey(fromJson: stringToNullableBool)
+  @JsonKey(fromJson: dynamicToNullableBool)
   final bool? errorOccured;
-  @JsonKey(fromJson: stringToNullableBool)
+  @JsonKey(fromJson: dynamicToNullableBool)
   final bool? hasParentTransaction;
   final String? hmac;
+  @JsonKey(fromJson: dynamicToString)
   final String? id;
+  @JsonKey(fromJson: dynamicToString)
   final String? integrationId;
-  @JsonKey(name: 'is_3d_secure', fromJson: stringToNullableBool)
+  @JsonKey(name: 'is_3d_secure', fromJson: dynamicToNullableBool)
   final bool? is3dSecure;
-  @JsonKey(fromJson: stringToNullableBool)
+  @JsonKey(fromJson: dynamicToNullableBool)
   final bool? isAuth;
-  @JsonKey(fromJson: stringToNullableBool)
+  @JsonKey(fromJson: dynamicToNullableBool)
   final bool? isCapture;
-  @JsonKey(fromJson: stringToNullableBool)
+  @JsonKey(fromJson: dynamicToNullableBool)
   final bool? isRefund;
-  @JsonKey(fromJson: stringToNullableBool)
+  @JsonKey(fromJson: dynamicToNullableBool)
   final bool? isRefunded;
-  @JsonKey(fromJson: stringToNullableBool)
+  @JsonKey(fromJson: dynamicToNullableBool)
   final bool? isStandalonePayment;
-  @JsonKey(fromJson: stringToNullableBool)
+  @JsonKey(fromJson: dynamicToNullableBool)
   final bool? isVoid;
-  @JsonKey(fromJson: stringToNullableBool)
+  @JsonKey(fromJson: dynamicToNullableBool)
   final bool? isVoided;
   final String? order;
+  @JsonKey(fromJson: dynamicToString)
   final String? owner;
-  @JsonKey(fromJson: stringToNullableBool)
+  @JsonKey(fromJson: dynamicToNullableBool)
   final bool? pending;
+  @JsonKey(fromJson: dynamicToString)
   final String? profileId;
-  @JsonKey(fromJson: stringToInt)
+  @JsonKey(fromJson: dynamicToInt)
   final int refundedAmountCents;
   @JsonKey(name: 'source_data.pan')
   final String? pan;
@@ -96,7 +103,7 @@ class PaymentResult {
   final String? type;
   @JsonKey(name: 'source_data.sub_type')
   final String? subType;
-  @JsonKey(fromJson: stringToNullableBool)
+  @JsonKey(fromJson: dynamicToNullableBool)
   final bool? success;
   @JsonKey(name: 'txn_response_code')
   final String? responseCode;

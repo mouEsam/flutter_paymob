@@ -87,6 +87,7 @@ public class FlutterPaymobPlugin implements FlutterPlugin, MethodCallHandler, Ac
         intent.putExtra(PayActivityIntentKeys.THREE_D_SECURE_ACTIVITY_TITLE, "Verification");
         // this key is used to define the language. takes for ex ("ar", "en") as inputs.
         intent.putExtra("language", payment.getLanguage());
+
         if (payment.getThemeColor() != null) {
             //this key is used to set the theme color(Actionbar, statusBar, button).
             //intent.putExtra(PayActivityIntentKeys.THEME_COLOR, payment.getThemeColor());
