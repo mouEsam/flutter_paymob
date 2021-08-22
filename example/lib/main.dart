@@ -23,6 +23,7 @@ class _MyAppState extends State<MyApp> {
   String frameId = '3474';
   String transactionId = '11914551';
   int integrationId = 623660;
+  int authAndCaptureIntegrationId = 623760;
   String _auth = '';
 
   int? _orderId;

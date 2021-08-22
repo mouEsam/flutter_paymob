@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_paymob/models/refund_request.dart';
-import 'package:flutter_paymob/utils/json_utils.dart';
 import 'package:http/http.dart' as http;
 
 import 'models/capture_request.dart';
@@ -88,7 +87,8 @@ class FlutterPaymob {
     }
   }
 
-  static Future<bool> captureTransaction(CaptureRequest captureRequest) async {
+  static Future<PaymentResult> captureTransaction(
+      CaptureRequest captureRequest) async {
     try {
       http.Response response =
           await http.post(Uri.parse('$BASE_URL/acceptance/capture'),
@@ -97,16 +97,19 @@ class FlutterPaymob {
                     'application/json; charset=UTF-8',
               },
               body: captureRequestToJson(captureRequest));
-      final responseBody = jsonDecode(response.body);
-      final success = stringToBool(responseBody['success']) &&
-          stringToBool(responseBody['is_capture']);
-      return success;
+      // final responseBody = jsonDecode(response.body);
+      // final success = stringToBool(responseBody['success']) &&
+      //     stringToBool(responseBody['is_capture']);
+      // return success;
+      final paymentResult = paymentResultFromJson(response.body);
+      return paymentResult;
     } catch (e) {
       throw e;
     }
   }
 
-  static Future<bool> refundTransaction(RefundRequest refundRequest) async {
+  static Future<PaymentResult> refundTransaction(
+      RefundRequest refundRequest) async {
     try {
       http.Response response =
           await http.post(Uri.parse('$BASE_URL/acceptance/void_refund/refund'),
@@ -115,9 +118,11 @@ class FlutterPaymob {
                     'application/json; charset=UTF-8',
               },
               body: refundRequestToJson(refundRequest));
-      final responseBody = jsonDecode(response.body);
-      final success = stringToBool(responseBody['success']);
-      return success;
+      // final responseBody = jsonDecode(response.body);
+      // final success = stringToBool(responseBody['success']);
+      // return success;
+      final paymentResult = paymentResultFromJson(response.body);
+      return paymentResult;
     } catch (e) {
       throw e;
     }
