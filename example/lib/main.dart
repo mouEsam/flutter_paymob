@@ -3,10 +3,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_paymob/flutter_paymob.dart';
-import 'package:flutter_paymob/models/order.dart';
-import 'package:flutter_paymob/models/payment.dart';
-import 'package:flutter_paymob/models/payment_key_request.dart';
-import 'package:flutter_paymob/models/payment_result.dart';
 
 void main() {
   runApp(MyApp());
@@ -60,7 +56,7 @@ class _MyAppState extends State<MyApp> {
           deliveryNeeded: false,
           amountCents: 100,
           currency: "EGP",
-          merchantOrderId: Random().nextInt(100000),
+          merchantOrderId: Random().nextInt(100000).toString(),
           items: [
             Item(
                 name: "ASC1515",
