@@ -62,12 +62,12 @@ class _MyAppState extends State<MyApp> {
                 name: "ASC1515",
                 amountCents: 500000,
                 description: "Smart Watch",
-                quantity: "1"),
+                quantity: 1),
             Item(
                 name: "ERT6565",
                 amountCents: 200000,
                 description: "Power Bank",
-                quantity: "1")
+                quantity: 1)
           ],
           shippingData: ShippingData(
               apartment: "803",
