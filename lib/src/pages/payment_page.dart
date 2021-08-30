@@ -64,9 +64,10 @@ class _PaymentPageState extends State<PaymentPage> {
         title: Text("PayMob"),
       ),
       initialChild: Container(
-        color: Colors.redAccent,
-        child: const Center(
-          child: CircularProgressIndicator.adaptive(),
+        child: Center(
+          child: CircularProgressIndicator.adaptive(
+            backgroundColor: theme.accentColor,
+          ),
         ),
       ),
     );

@@ -115,22 +115,22 @@ class ShippingData {
 class ShippingDetails {
   ShippingDetails({
     this.notes,
-    this.numberOfPackages,
-    this.weight,
-    this.weightUnit,
-    this.length,
-    this.width,
-    this.height,
+    this.numberOfPackages = 1,
+    this.weight = 0,
+    this.weightUnit = 'Kilogram',
+    this.length = 0,
+    this.width = 0,
+    this.height = 0,
     this.contents,
   });
 
   String? notes;
-  int? numberOfPackages;
-  int? weight;
-  String? weightUnit;
-  int? length;
-  int? width;
-  int? height;
+  int numberOfPackages;
+  int weight;
+  String weightUnit;
+  int length;
+  int width;
+  int height;
   String? contents;
 
   Map<String, dynamic> toJson() => _$ShippingDetailsToJson(this);
