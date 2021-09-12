@@ -172,8 +172,10 @@ class FlutterPaymob {
   }
 
   static Future<PaymentResult?> startPayPage(
-      BuildContext context, String paymentKey, String frameId) async {
-    final nullableResult = await PaymentPage.push(context, paymentKey, frameId);
+      BuildContext context, String paymentKey, String frameId,
+      [String? title]) async {
+    final nullableResult =
+        await PaymentPage.push(context, paymentKey, frameId, title);
     return nullableResult;
   }
 

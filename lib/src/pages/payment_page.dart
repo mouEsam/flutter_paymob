@@ -13,11 +13,13 @@ class PaymentPage extends StatefulWidget {
   const PaymentPage({required this.token, this.frameId, this.title});
 
   static Future<PaymentResult?> push(
-      BuildContext context, String token, String frameId) async {
+      BuildContext context, String token, String frameId,
+      [String? title]) async {
     final result = await Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => PaymentPage(
               token: token,
               frameId: frameId,
+              title: title,
             )));
     return result as PaymentResult?;
   }
