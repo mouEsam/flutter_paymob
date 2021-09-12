@@ -7,9 +7,10 @@ import '../models/payment_result.dart';
 
 class PaymentPage extends StatefulWidget {
   final String token;
+  final String? title;
   final String? frameId;
 
-  const PaymentPage({required this.token, this.frameId});
+  const PaymentPage({required this.token, this.frameId, this.title});
 
   static Future<PaymentResult?> push(
       BuildContext context, String token, String frameId) async {
@@ -61,7 +62,7 @@ class _PaymentPageState extends State<PaymentPage> {
       url: checkoutUrl,
       withJavascript: true,
       appBar: AppBar(
-        title: Text("PayMob"),
+        title: Text(widget.title ?? "PayMob"),
       ),
       initialChild: Container(
         child: Center(
