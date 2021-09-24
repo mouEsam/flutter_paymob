@@ -311,7 +311,7 @@ class _MyAppState extends State<MyApp> {
                   onPressed: () async {
                     await startPayPage(context);
                   },
-                  child: Text('startPayActivity'),
+                  child: Text('startPayPage'),
                 ),
                 Text(
                   'error: $_error',
