@@ -17,7 +17,7 @@ class _MyAppState extends State<MyApp> {
   String apiKey =
       'ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SndjbTltYVd4bFgzQnJJam94TURRekxDSmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2libUZ0WlNJNkltbHVhWFJwWVd3aWZRLjI5QThEV0hhUGE4Qlk2R0syRm12NldKM0RqYTdxUGgtcmNjeW5rMU1PRDQ1Ukxqa01xakllU2JNVXJYYS1rLTBFazUxYVBmX3Bad05rVXJIbHQ5SEFn';
   String frameId = '3474';
-  String transactionId = '11914551';
+  String transactionId = '11914sdgsgd551';
   int integrationId = 623660;
   int authAndCaptureIntegrationId = 623760;
   String _auth = '';
@@ -149,16 +149,18 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> retrieveTransaction() async {
     try {
-      final result =
-          await FlutterPaymob.retrieveTransaction(_auth, transactionId);
+      final result = await FlutterPaymob.retrieveTransaction(_auth,
+          merchantOrderId: transactionId);
       if (!mounted) return;
 
-      print(result.cardToken);
-
       setState(() {
-        _result = result.dataMessage;
-        _token = result.cardToken;
-        _maskedPan = result.maskedPan;
+        if (result != null) {
+          _result = result.dataMessage;
+          _token = result.cardToken;
+          _maskedPan = result.maskedPan;
+        } else {
+          _error = 'Not Found';
+        }
       });
     } catch (e, s) {
       print(e);
@@ -176,6 +178,8 @@ class _MyAppState extends State<MyApp> {
       PaymentResult result =
           await FlutterPaymob.startPayActivityNoToken(Payment(
         paymentKey: _paymentKey,
+        authToken: _auth,
+        orderId: _orderId.toString(),
         saveCardDefault: false,
         showSaveCard: true,
         themeColor: Color(0xFF002B36),
@@ -199,8 +203,8 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> startPayPage(BuildContext context) async {
     try {
-      PaymentResult? result =
-          await FlutterPaymob.startPayPage(context, _paymentKey, frameId);
+      PaymentResult? result = await FlutterPaymob.startPayPageNoUrlPost(
+          context, _auth, _paymentKey, _orderId.toString(), frameId);
       if (!mounted) return;
 
       setState(() {
@@ -224,6 +228,8 @@ class _MyAppState extends State<MyApp> {
     try {
       final result = await FlutterPaymob.startPayActivityToken(Payment(
         paymentKey: _paymentKey,
+        authToken: _auth,
+        orderId: _orderId.toString(),
         saveCardDefault: false,
         showSaveCard: true,
         themeColor: Color(0xFF002B36),

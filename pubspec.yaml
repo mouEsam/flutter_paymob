@@ -12,7 +12,10 @@ dependencies:
     sdk: flutter
   http: ^0.13.3
   json_annotation: any
-  webviewx: ^0.2.1
+  universal_platform: any
+#  webviewx: ^0.2.1
+  webviewx:
+    path: ./../webviewx
 
 dev_dependencies:
   flutter_test:

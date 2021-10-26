@@ -6,53 +6,76 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_paymob/flutter_paymob.dart';
-import 'package:flutter_paymob/src/utils/html_utils/html_utils.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:webviewx/webviewx.dart';
 
 import '../models/payment_result.dart';
 
-class PaymentPage extends StatefulWidget {
+class PaymentPageWithNoUrlPost extends StatefulWidget {
   final String paymentToken;
+  final String authToken;
+  final String orderId;
   final String? title;
   final String frameId;
-  final Duration popDelay;
 
-  const PaymentPage._({
-    required this.paymentToken,
-    required this.frameId,
-    required this.popDelay,
-    this.title,
-  });
+  const PaymentPageWithNoUrlPost._(
+      {required this.paymentToken,
+      required this.frameId,
+      required this.orderId,
+      this.title,
+      required this.authToken});
 
-  static Future<PaymentResult?> push(BuildContext context, String paymentToken,
-      String frameId, String? title, Duration popDelay) async {
+  static Future<PaymentResult?> push(BuildContext context, String authToken,
+      String paymentToken, String orderId, String frameId,
+      [String? title]) async {
     var result = await Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => PaymentPage._(
+        builder: (context) => PaymentPageWithNoUrlPost._(
               paymentToken: paymentToken,
+              orderId: orderId,
+              authToken: authToken,
               frameId: frameId,
               title: title,
-              popDelay: popDelay,
             )));
+    if (result == null && UniversalPlatform.isWeb) {
+      return await PaymentPageWithNoUrlPost._checkTransaction(authToken,
+          orderId: orderId);
+    }
     return result as PaymentResult?;
   }
 
+  static Future<PaymentResult?> _checkTransaction(String authToken,
+      {String? merchantOrderId, String? orderId}) async {
+    try {
+      final result = await FlutterPaymob.retrieveTransaction(authToken,
+          merchantOrderId: merchantOrderId, orderId: orderId);
+      if (result != null &&
+          (result.pending != true || result.success == true)) {
+        return result;
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   @override
-  _PaymentPageState createState() => _PaymentPageState();
+  _PaymentPageWithNoUrlPostState createState() =>
+      _PaymentPageWithNoUrlPostState();
 }
 
-class _PaymentPageState extends State<PaymentPage> {
+class _PaymentPageWithNoUrlPostState extends State<PaymentPageWithNoUrlPost> {
   final ValueNotifier<bool> running = ValueNotifier(false);
   final ValueNotifier<bool> isLoading = ValueNotifier(true);
   late WebViewXController webviewController;
   Timer? timer;
+
+  Map<String, dynamic>? _tempResultMap;
 
   Size get screenSize => MediaQuery.of(context).size;
 
   @override
   void initState() {
     super.initState();
-    listenToUrlEvent(shouldRedirectToUrl);
   }
 
   @override
@@ -81,6 +104,7 @@ class _PaymentPageState extends State<PaymentPage> {
       if (jsonMap != null) {
         final redirectionUrl = jsonMap['redirection_url'] as String?;
         if (redirectionUrl != null) {
+          _tempResultMap ??= jsonMap;
           final shouldRedirect = shouldRedirectToUrl(redirectionUrl);
           if (shouldRedirect) {
             webviewController.loadContent(redirectionUrl, SourceType.urlBypass);
@@ -92,6 +116,20 @@ class _PaymentPageState extends State<PaymentPage> {
       debugPrint(e.toString());
       return false;
     }
+  }
+
+  Future<bool> _handlePaymobResultBody() async {
+    debugPrint('handlePaymobResultBody');
+    if (_tempResultMap != null) {
+      final result = await PaymentPageWithNoUrlPost._checkTransaction(
+          widget.authToken,
+          orderId: widget.orderId);
+      if (result != null) {
+        Navigator.pop(context, result);
+        return true;
+      }
+    }
+    return false;
   }
 
   @override
@@ -142,9 +180,7 @@ class _PaymentPageState extends State<PaymentPage> {
     return WebViewX(
       key: const ValueKey('webviewx'),
       initialContent: checkoutUrl,
-      initialSourceType: UniversalPlatform.isWeb | UniversalPlatform.isDesktop
-          ? SourceType.urlBypass
-          : SourceType.url,
+      initialSourceType: SourceType.urlBypass,
       height: screenSize.height,
       width: screenSize.width,
       onWebViewCreated: (controller) {
@@ -159,6 +195,7 @@ class _PaymentPageState extends State<PaymentPage> {
       onPageFinished: (src) {
         isLoading.value = false;
         debugPrint('The page has finished loading: $src\n');
+        _handlePaymobResultBody();
       },
       jsContent: const {
         EmbeddedJsContent(
@@ -229,9 +266,10 @@ class _PaymentPageState extends State<PaymentPage> {
     print(url);
     final uri = Uri.parse(url);
     if (uri.path.contains('post_pay') || uri.authority.contains('post-pay')) {
+      // if (request.url.contains("txn_response_code=APPROVED")) {
       final queryMap = uri.queryParameters;
       final result = PaymentResult.fromJson(queryMap);
-      Future.delayed(widget.popDelay, () => Navigator.of(context).pop(result));
+      Navigator.of(context).pop(result);
       return false;
     }
     return true;

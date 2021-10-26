@@ -10,8 +10,12 @@ import '../utils/json_utils.dart';
 
 part 'payment_result.g.dart';
 
-PaymentResult paymentResultFromJson(String str) =>
-    PaymentResult.fromJson(flattenMap(json.decode(str)));
+PaymentResult paymentResultFromJson(String str) {
+  final jsonMap = json.decode(str);
+  jsonMap['txn_response_code'] ??= jsonMap['data']?['txn_response_code'];
+  jsonMap['order'] = jsonMap['order']?['id'] ?? jsonMap['order'];
+  return PaymentResult.fromJson(flattenMap(jsonMap));
+}
 
 PaymentResult paymentResultFromFlatJson(String str) =>
     PaymentResult.fromJson(json.decode(str));
@@ -89,6 +93,7 @@ class PaymentResult {
   final bool? isVoid;
   @JsonKey(fromJson: dynamicToNullableBool)
   final bool? isVoided;
+  @JsonKey(fromJson: dynamicToString)
   final String? order;
   @JsonKey(fromJson: dynamicToString)
   final String? owner;
@@ -108,6 +113,9 @@ class PaymentResult {
   final bool? success;
   @JsonKey(name: 'txn_response_code')
   final String? responseCode; // success if APPROVED
+
+  bool get isSuccess => success == true ||
+      responseCode == 'APPROVED';
 
   factory PaymentResult.fromJson(Map<String, dynamic> json) =>
       _$PaymentResultFromJson(json);

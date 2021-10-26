@@ -17,6 +17,8 @@ String paymentToJson(Payment data) => json.encode(data.toJson());
 class Payment {
   Payment({
     required this.paymentKey,
+    required this.authToken,
+    required this.orderId,
     this.token,
     this.saveCardDefault = false,
     this.showSaveCard = true,
@@ -28,6 +30,8 @@ class Payment {
   });
 
   String paymentKey;
+  String authToken;
+  String orderId;
   bool saveCardDefault;
   bool showSaveCard;
   @JsonKey(toJson: colorToHex)

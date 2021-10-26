@@ -28,7 +28,7 @@ PaymentResult _$PaymentResultFromJson(Map<String, dynamic> json) {
     dynamicToNullableBool(json['is_standalone_payment']),
     dynamicToNullableBool(json['is_void']),
     dynamicToNullableBool(json['is_voided']),
-    json['order'] as String?,
+    dynamicToString(json['order']),
     dynamicToString(json['owner']),
     dynamicToNullableBool(json['pending']),
     dynamicToString(json['profile_id']),

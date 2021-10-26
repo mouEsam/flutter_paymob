@@ -8,6 +8,8 @@ part of 'payment.dart';
 
 Map<String, dynamic> _$PaymentToJson(Payment instance) => <String, dynamic>{
       'payment_key': instance.paymentKey,
+      'auth_token': instance.authToken,
+      'order_id': instance.orderId,
       'save_card_default': instance.saveCardDefault,
       'show_save_card': instance.showSaveCard,
       'theme_color': colorToHex(instance.themeColor),

@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_paymob/src/pages/payment_page_web_no_post.dart';
 import 'package:http/http.dart' as http;
 
 import 'models/capture_request.dart';
@@ -128,7 +129,7 @@ class FlutterPaymob {
     }
   }
 
-  static Future<PaymentResult> retrieveTransaction(
+  static Future<PaymentResult?> retrieveTransactionById(
       String authToken, String transactionId) async {
     try {
       http.Response response = await http.get(
@@ -137,8 +138,42 @@ class FlutterPaymob {
             HttpHeaders.contentTypeHeader: 'application/json; charset=UTF-8',
             HttpHeaders.authorizationHeader: 'Bearer $authToken'
           });
-      print(response.body);
-      final paymentResult = paymentResultFromJson(response.body);
+      final body = response.body;
+      print("retrieveTransaction $body");
+      if (body.contains('Not found')) {
+        return null;
+      }
+      final paymentResult = paymentResultFromJson(body);
+      return paymentResult;
+    } catch (e, s) {
+      print(e);
+      print(s);
+      throw e;
+    }
+  }
+
+  static Future<PaymentResult?> retrieveTransaction(String authToken,
+      {String? merchantOrderId, String? orderId}) async {
+    try {
+      final json = {
+        "auth_token": authToken,
+        if (merchantOrderId != null) "merchant_order_id": merchantOrderId,
+        if (orderId != null) "order_id": orderId,
+      };
+      http.Response response = await http.post(
+        Uri.parse(
+            'https://accept.paymobsolutions.com/api/ecommerce/orders/transaction_inquiry'),
+        headers: <String, String>{
+          HttpHeaders.contentTypeHeader: 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(json),
+      );
+      final body = response.body;
+      print("retrieveTransaction $body");
+      if (body.contains('Not found')) {
+        return null;
+      }
+      final paymentResult = paymentResultFromJson(body);
       return paymentResult;
     } catch (e, s) {
       print(e);
@@ -173,9 +208,17 @@ class FlutterPaymob {
 
   static Future<PaymentResult?> startPayPage(
       BuildContext context, String paymentKey, String frameId,
-      [String? title]) async {
+      {String? title, Duration popDelay = Duration.zero}) async {
     final nullableResult =
-        await PaymentPage.push(context, paymentKey, frameId, title);
+        await PaymentPage.push(context, paymentKey, frameId, title, popDelay);
+    return nullableResult;
+  }
+
+  static Future<PaymentResult?> startPayPageNoUrlPost(BuildContext context,
+      String authKey, String paymentKey, String orderId, String frameId,
+      [String? title]) async {
+    final nullableResult = await PaymentPageWithNoUrlPost.push(
+        context, authKey, paymentKey, orderId, frameId, title);
     return nullableResult;
   }
 
@@ -186,8 +229,8 @@ class FlutterPaymob {
       if (Platform.isAndroid) {
         result = await startPayActivityNoToken(payment);
       } else {
-        final nullableResult =
-            await PaymentPage.push(context, payment.paymentKey, frameId);
+        final nullableResult = await PaymentPage.push(
+            context, payment.paymentKey, frameId, null, Duration.zero);
         if (nullableResult == null) {
           throw PlatformException(code: 'USER_CANCELED');
         }
