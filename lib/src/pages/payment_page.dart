@@ -13,24 +13,33 @@ import 'package:webviewx/webviewx.dart';
 import '../models/payment_result.dart';
 
 class PaymentPage extends StatefulWidget {
-  final String paymentToken;
+  final String url;
   final String? title;
-  final String frameId;
   final Duration popDelay;
 
   const PaymentPage._({
-    required this.paymentToken,
-    required this.frameId,
+    required this.url,
     required this.popDelay,
     this.title,
   });
 
   static Future<PaymentResult?> push(BuildContext context, String paymentToken,
-      String frameId, String? title, Duration popDelay) async {
-    var result = await Navigator.of(context).push(MaterialPageRoute(
+      String frameId, String? title, Duration popDelay, {bool rootNavigator = true}) async {
+    var result = await Navigator.of(context, rootNavigator:rootNavigator).push(MaterialPageRoute(
         builder: (context) => PaymentPage._(
-              paymentToken: paymentToken,
-              frameId: frameId,
+              url:
+                  "https://accept.paymob.com/api/acceptance/iframes/$frameId?payment_token=$paymentToken",
+              title: title,
+              popDelay: popDelay,
+            )));
+    return result as PaymentResult?;
+  }
+
+  static Future<PaymentResult?> pushUrl(BuildContext context, String url,
+      String? title, Duration popDelay, {bool rootNavigator = true}) async {
+    var result = await Navigator.of(context, rootNavigator: rootNavigator).push(MaterialPageRoute(
+        builder: (context) => PaymentPage._(
+              url: url,
               title: title,
               popDelay: popDelay,
             )));
@@ -135,9 +144,7 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   Widget _buildWebViewX(BuildContext context) {
-    final frameId = this.widget.frameId;
-    final checkoutUrl =
-        "https://accept.paymob.com/api/acceptance/iframes/$frameId?payment_token=${widget.paymentToken}";
+    final checkoutUrl = this.widget.url;
 
     return WebViewX(
       key: const ValueKey('webviewx'),
